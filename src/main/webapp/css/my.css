@@ -1,0 +1,40 @@
+table {
+
+}
+
+th, td {
+    border: 1px solid black;
+    padding: 8px;
+    text-align: left;
+}
+
+th {
+    background-color: #f2f2f2;
+}
+
+/* Обычная кнопка пагинации */
+.page-number {
+    padding: 6px 9px;
+    margin: 1px 1px;
+    border: 1px solid #ccc;
+    background-color: #f9f9f9;
+    color: #333;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+/* Стили при наведении на обычную кнопку */
+.page-number:hover {
+    background-color: #e0e0e0;
+}
+
+/* Текущая выбранная кнопка */
+.current-page-number {
+    padding: 6px 9px;
+    margin: 1px 1px;
+    border: 1px solid #007bff;
+    background-color: #007bff;
+    color: white;
+    cursor: default;
+    font-weight: bold;
+}

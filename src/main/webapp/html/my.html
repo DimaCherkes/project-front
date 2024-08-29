@@ -2,10 +2,155 @@
 <head>
     <title>RPG</title>
     <script src=https://code.jquery.com/jquery-3.6.0.min.js></script>
-    <link href="/css/my.css" rel="stylesheet">
+    <link rel="stylesheet" href="/rpg_war_exploded/css/my.css">
 </head>
 <body>
 <h1>RPG admin panel</h1>
 
+<h3>Accounts list</h3>
+
+<label for="page-select">Count per page:</label>
+<select id="page-select" onchange="displayTable()">
+    <option value="3">3</option>
+    <option value="5">5</option>
+    <option value="10">10</option>
+    <option value="20">20</option>
+</select>
+
+<table id="table1">
+    <thead>
+    <tr>
+        <th>#</th>
+        <th>Name</th>
+        <th>Title</th>
+        <th>Race</th>
+        <th>Profession</th>
+        <th>Level</th>
+        <th>Birthday</th>
+        <th>Banned</th>
+    </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+
+<div id="pagination">
+    <label for="pagination">Pages: </label>
+</div>
+
+<script>
+    let currentPage = 0;
+
+    showAccounts(currentPage);
+
+    function showAccounts(page) {
+        clearTable();
+
+        let allAccounts = getAllAccounts();
+        // handle the value from selection form
+        let accountsPerPage = handleSelectionChange();
+        let pagesNeeded = Math.ceil(allAccounts / accountsPerPage);
+        console.log("Pages Needed: ", pagesNeeded);
+
+        let pageIndex = generatePagination(pagesNeeded, page) - 1;
+        console.log("Current page number: ", pageIndex + 1);
+
+        displayPlayers(pageIndex, accountsPerPage);
+        currentPage = pageIndex;
+    }
+
+    function displayTable() {
+        showAccounts(0);
+    }
+
+    function handleSelectionChange() {
+        let selectElement = document.getElementById("page-select");
+        let accountsPerPage = selectElement.value;
+        console.log("Count per page: ", accountsPerPage);
+        return accountsPerPage;
+    }
+
+    function formatDate(milliseconds) {
+        const date = new Date(milliseconds);
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0'); // Месяцы начинаются с 0
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
+    }
+
+    function clearTable() {
+        const tableBody = document.querySelector("#table1 tbody");
+        tableBody.innerHTML = '';
+    }
+
+    function displayPlayers(pageNumber, accountsPerPage) {
+        $.get(`rest/players?pageNumber=${pageNumber}&pageSize=${accountsPerPage}`, function (data) {
+            $.each(data, function (index, player) {
+                var row = "<tr>" +
+                    "<td>" + player.id + "</td>" +
+                    "<td>" + player.name + "</td>" +
+                    "<td>" + player.title + "</td>" +
+                    "<td>" + player.race + "</td>" +
+                    "<td>" + player.profession + "</td>" +
+                    "<td>" + player.level + "</td>" +
+                    "<td>" + formatDate(player.birthday) + "</td>" +
+                    "<td>" + player.banned + "</td>" +
+                    "</tr>";
+                $("#table1 tbody").append(row);
+            });
+        });
+    }
+
+    function getAllAccounts() {
+        let allAccounts;
+        $.ajax({
+            url: "rest/players/count",
+            type: "GET",
+            async: false,
+            success: function (data) {
+                console.log("All accounts:", data);
+                allAccounts = data;
+            },
+            error: function (error) {
+                console.error("Haven't got data.", error);
+            }
+        });
+        return allAccounts;
+    }
+
+    function generatePagination(totalPages, currentPage) {
+        const paginationContainer = document.getElementById('pagination');
+        paginationContainer.innerHTML = '';
+
+        // Создаем кнопки страниц
+        for (let i = 0; i < totalPages; i++) {
+            const pageButton = document.createElement('button');
+            pageButton.className = 'page-number';
+            pageButton.textContent = (1 + i).toString();
+            if (i === currentPage) {
+                pageButton.className = 'current-page-number';
+            }
+            pageButton.addEventListener('click', () => {
+                pageButton.className = 'current-page-number';
+                showAccounts(i);
+            });
+            paginationContainer.appendChild(pageButton);
+        }
+
+        const currentButton = document.getElementsByClassName('current-page-number');
+        if (currentButton.length > 0) {
+            return currentButton[0].textContent;
+        } else {
+            console.error("Button with class 'current-page-number' not found.");
+            return null;
+        }
+    }
+
+
+
+</script>
+
 </body>
+
+
 </html>
